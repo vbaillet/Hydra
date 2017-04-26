@@ -3,7 +3,7 @@ set -e
 
 if [ -z $4 ]
 then
-	echo "usage:$0 <file w/ list of routed files> <hydra config file> <number of processes> <punt parameter>"
+	echo "usage:$0 <hydra config file> <file w/ list of routed files> <number of processes> <punt parameter>"
 	exit
 fi
 
