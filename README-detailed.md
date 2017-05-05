@@ -1,3 +1,6 @@
+##Comment
+This is a mix between several sources of info, incl. https://code.google.com/archive/p/hydra-sv/
+
 Hydra-Multi - an SV discovery tool that incorporates hundreds of samples
 =======================================================================
 
@@ -113,8 +116,10 @@ This routes all of the alignments on with the same chromosome/orientation set to
 ==================================
 Assembly of each chromosome/orientation set.
 
-    $ sh scripts/assemble-routed-files.sh routed-files-test.txt config.hydra.txt 1
+    $ sh scripts/assemble-routed-files.sh config.hydra.txt routed-files-test.txt <nb of threads> <punt parameter>
 
+Punt parameter: set to 5x the average coverage of the sample(s)
+In the case of one MP sample, ~40x, this lasts ~10days...
 
 ###5. Combine the individual SV assembly files into a single file.
 ===============================================================
@@ -122,18 +127,110 @@ Combine all of the chromosome/orientation sets back into one file.
 
     $ sh scripts/combine-assembled-files.sh /full/path/to/assembled/files/ all.assembled
 
+Comments:
+
+- /path/to/assembled/files, not /path/to/assembled/files/ ! 
+- Note all assembly files (punted & assembled) will be deleted, cp to a backup folder or edit code accordingly.
 
 ###6. Finalize the SV breakpoint predictions.
 ===============================================================
 
-    $ scripts/forceOneClusterPerPairMem.py -i all.assembled -o all.sv-calls
+    $ scripts/forceOneClusterPerPairMem.py -i all.assembled -o all.sv-calls -m 8G
 
+-This involves several rounds of heavy file sorting, memory allocation (-m, default is 2G) shall be set accordingly.
+
+-This step outputs several files containing the calls: .final, .detail, .all ; that are formatted as follows 
+(from https://code.google.com/archive/p/hydra-sv/wikis/FileFormats.wiki )
+
+
+- Hydra breakpoint output file format (.final and .all)
+
+$1. chrom1 Chromosome for end 1 of the breakpoint. 
+
+$2. start1 Start position for end 1 of the breakpoint. 
+
+$3. end1 End position for end 1 of the breakpoint. 
+
+$4. chrom2 Chromosome for end 2 of the breakpoint. 
+
+$5. start2 Start position for end 2 of the breakpoint. 
+
+$6. end2 End position for end 2 of the breakpoint. 
+
+$7. breakpointId Unique Hydra breakpoint identifier. 
+
+$8. numDistinctPairs Number of distinct pairs in breakpoint. 
+
+$9. strand1 Orientation for the first end of the breakpoint. 
+
+$10. strand2 Orientation for the second end of the breakpoint. 
+
+$11. meanEditDist1 Mean edit distance observed in end1 of the breakpoint pairs. 
+
+$12. meanEditDist2 Mean edit distance observed in end2 of the breakpoint pairs. 
+
+$13. meanMappings1 Mean number of mappings for end1 of all pairs in the breakpoint. 
+
+$14. meanMappings2 Mean number of mappings for end2 of all pairs in the breakpoint. 
+
+$15. breakpointSize Size of the breakpoint. 
+
+$16. numMappings Total number of mappings included in the breakpoint. 
+
+$17. allWeightedSupport Amount of weighted support from the mappings in the breakpoint. 
+
+$18. finalSupport Amount of final support from the mappings in the breakpoint. 
+
+$19. finalWeightedSupport Amount of final weighted support from the mappings in the breakpoint. 
+
+$20. numUniquePairs Number of pairs in the breakpoint that were uniquely mapped to the genome. 
+
+$21. numAnchoredPairs Number of pairs in the breakpoint that were mapped to the genome in an "anchored" fashion (i.e. 1xN). 
+
+$22. numMultiplyMappedPairs Number of pairs in the breakpoint that were multiply mapped to the genome in fashion (i.e. NxN).
+
+
+- Hydra breakpoint output detail file format
+
+$1. chrom1 Chromosome for end 1 
+
+$2. start1 Start position for end 1 
+
+$3. end1 End position for end 1 
+
+$4. chrom2 Chromosome for end 1 
+
+$5. start2 Start position for end 2 
+
+$6. end1 End position for end 2 
+
+$7. name Name of the pair 
+
+$8. mate1End To which mate of the pair do fields 1,2,3,9,11 correspond? (values: 1 or 2) 
+$9. strand1 Orientation for end 1 (+ or -) 
+
+$10. strand2 Orientation for end 2 (+ or -) 
+
+$11. editDist1 Alignment edit distance for end 1 (can be extracted from NM tag in SAM) 
+
+$12. editDist2 Alignment edit distance for end 2 (can be extracted from NM tag in SAM) 
+
+$13. numMappings1 Number of mappings for end 1 of this pair 
+
+$14. numMappings2 Number of mappings for end 2 of this pair 
+
+$15. mappingType What type of mapping is this? (1=unique, 2=anchored, 3-multiply) 
+
+$16. includedInBreakpoint Was this pair ultimately included in this breakpoint? 
+
+$17. breakpointId Unique Hydra breakpoint identifier. 
 
 ###7. Determine presence of the SV breakpoint predictions in samples.
 =======================================================================
 
-    $ scripts/frequency.py -f all.sv-calls.final -d all.sv-calls.detail > all.sv-calls.freq
-    
+    $ scripts/frequency.py -f all.sv-calls.final -d all.sv-calls.detail -c config.hydra.txt > all.sv-calls.freq
+
+Note also the -x option / do not print column headers    
     
 ###8. Change footprint intervals into breakpoint intervals.
 ===============================================================
