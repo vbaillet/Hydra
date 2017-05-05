@@ -7,7 +7,7 @@ Hydra-Multi - an SV discovery tool that incorporates hundreds of samples
 1. Generate a config file.
 ==========================
 =======
-Hydra-Multi is a paired-end read structural variant discovery tool that is capable of integrating signals from hundreds of samples.
+Hydra-Multi is a paired-end read structural variant discovery tool that is capable of integrating signals from hundreds of samples. Note that Hydra-Multi is also compatible with MP data, provided an additional step meant to correct insert size data calculation.
 
 #Installation
 Below are the requirements and instructions for installation of Hydra-Multi. 
@@ -19,7 +19,7 @@ Below are the requirements and instructions for installation of Hydra-Multi.
 
 The ulimit determines the number of open file handles on a system.  
 This number must be larger than 4*number of possible chromosome-chromosome combinations in the respective reference.  
-For the human reference (hg19 b37), 16384 is the recommended ulimit.
+For the human reference (hg19 b37), 16384 is the recommended ulimit. No need to do so for Arabidopsis genome (60 combinations total if ChrC/M are set aside).
 
 ###Installing
 	git clone https://github.com/arq5x/Hydra
@@ -38,7 +38,7 @@ A wrapper script (hydra-multi.sh) can be used to automatiically run Hydra-Multi 
 
 ###0. Generate a stub file.
 ==========================
-Start with a simple config file "stub" such as the one below:
+Start with a simple config file "stub" such as the one below. The /path/to/bamfile will be the directory in which all the output files will written. It is preferable to dedicate one directory per sample. 
 
     $ cat config.stub.txt
     sample1	/full/path/to/file/sample1.pos.bam
