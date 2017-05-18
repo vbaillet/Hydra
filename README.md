@@ -100,6 +100,10 @@ in the the same directory.  For example, it will create a `sample1.pos.bam.bedpe
 file for the `sample1.pos.bam` input file listed in the config file:
 
     python scripts/extract_discordants.py -c config.hydra.txt -d <sample_name>
+    
+This is sample-by-sample procedure. Alternatively, run `extract_all_discordants.sh` with the following syntax, using one thread per sample. Note- TODO: edit how `extract_discordants.py` is invoked in `extract_all_discordants.sh`
+
+    bash scripts/extract_all_discordants.sh <config.hydra.txt> <Nb of threads>
 
 
 ###3. Run HydraRouter
